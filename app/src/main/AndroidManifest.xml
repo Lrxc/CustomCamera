@@ -23,7 +23,7 @@
         </activity>
 
         <activity android:name=".TakePhotoActivity" />
-        <activity android:name=".ShowImgActivity" />
+        <activity android:name=".TwoTakeActivity" />
     </application>
 
 </manifest>

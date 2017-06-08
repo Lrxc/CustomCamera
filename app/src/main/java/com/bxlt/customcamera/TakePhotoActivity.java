@@ -55,9 +55,7 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
         public void onPictureTaken(byte[] data, Camera camera) {
             camera.startPreview(); // 拍完照后，重新开始预览
 
-            Intent intent = new Intent(TakePhotoActivity.this, ShowImgActivity.class);
-            intent.putExtra("data", data);
-            startActivity(intent);
+            new ShowImgDialog(TakePhotoActivity.this, data);
         }
     }
 
@@ -88,7 +86,6 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
         @Override
         public void surfaceDestroyed(SurfaceHolder holder) {
             if (camera != null) {
-                camera.stopPreview(); // 停止预览
                 camera.release(); // 释放照相机
                 camera = null;
             }
@@ -98,8 +95,7 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
     // 提供一个静态方法，用于根据手机方向获得相机预览画面旋转的角度
     public static int getPreviewDegree(Activity activity) {
         // 获得手机的方向
-        int rotation = activity.getWindowManager().getDefaultDisplay()
-                .getRotation();
+        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
         int degree = 0;
         // 根据手机的方向计算相机预览画面应该选择的角度
         switch (rotation) {

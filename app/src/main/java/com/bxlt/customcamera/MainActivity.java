@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.gotoCamera).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(new Intent(MainActivity.this, TakePhotoActivity.class));
+                startActivity(new Intent(MainActivity.this, TwoTakeActivity.class));
             }
         });
     }
