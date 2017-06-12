@@ -3,6 +3,7 @@ package com.bxlt.customcamera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 /**
@@ -45,6 +46,6 @@ public class TwoTakeActivity extends AppCompatActivity implements View.OnClickLi
     @Override
     public void onCameraData(byte[] data) {
         //拍照完成，弹窗并保存
-        new ShowImgDialog(TwoTakeActivity.this, data);
+        new ShowImgDialog(TwoTakeActivity.this, data, camePreview);
     }
 }

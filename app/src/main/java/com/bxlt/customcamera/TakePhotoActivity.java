@@ -7,6 +7,7 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -53,9 +54,9 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
     private class MyPictureCallback implements Camera.PictureCallback {
         @Override
         public void onPictureTaken(byte[] data, Camera camera) {
-            camera.startPreview(); // 拍完照后，重新开始预览
+            camera.stopPreview(); // 拍完照后，重新开始预览
 
-            new ShowImgDialog(TakePhotoActivity.this, data);
+            new ShowImgDialog(TakePhotoActivity.this, data, null);
         }
     }
 
