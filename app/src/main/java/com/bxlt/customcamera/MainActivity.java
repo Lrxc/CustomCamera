@@ -13,13 +13,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        findViewById(R.id.gotoCamera1).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                startActivity(new Intent(MainActivity.this, TakePhotoActivity.class));
-            }
-        });
-
         findViewById(R.id.gotoCamera2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
