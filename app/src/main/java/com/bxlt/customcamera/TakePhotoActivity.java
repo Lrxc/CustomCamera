@@ -16,6 +16,7 @@ import android.view.View;
 import java.io.IOException;
 
 /**
+ * Activity 直接集成拍照
  * Created by Lrxc on 2017/6/8.
  */
 
