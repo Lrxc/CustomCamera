@@ -4,14 +4,37 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:gravity="center"
+    android:gravity="center_horizontal"
     android:orientation="vertical"
+    android:padding="10dp"
     tools:context="com.bxlt.customcamera.MainActivity">
 
     <Button
-        android:id="@+id/gotoCamera2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="拍照" />
+        android:onClick="gotoCamera1"
+        android:text="系统相机缩略图" />
 
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="gotoCamera2"
+        android:text="系统相机真实图" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="gotoCamera3"
+        android:text="自定义相机" />
+
+    <TextView
+        android:id="@+id/tv"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+
+    <ImageView
+        android:id="@+id/img"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 </LinearLayout>

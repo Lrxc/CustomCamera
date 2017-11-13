@@ -92,9 +92,4 @@ public class TwoTakeActivity extends AppCompatActivity implements View.OnClickLi
         //拍照完成，弹窗并保存
         new ShowImgDialog(this, data, camePreview);
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-    }
 }

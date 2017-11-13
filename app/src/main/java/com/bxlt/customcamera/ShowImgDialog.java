@@ -33,12 +33,16 @@ public class ShowImgDialog implements View.OnClickListener {
     private CameraPreviewView camePreview;
     private Dialog dialog;
     private Bitmap waterMarkBitmap;
+    private ImageView showimg;
+    private File jpgFile;
 
     public ShowImgDialog(Context context, byte[] data, CameraPreviewView camePreview) {
         this.context = context;
         this.camePreview = camePreview;
         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
         waterMarkBitmap = createWaterMarkBitmap(bitmap);
+
+        saveToSDCard(waterMarkBitmap); // 保存图片到sd卡中
 
         initView();
     }
@@ -56,11 +60,10 @@ public class ShowImgDialog implements View.OnClickListener {
     }
 
     private void initDialog(View view) {
-        ImageView showimg = (ImageView) view.findViewById(R.id.showimg);
+        showimg = (ImageView) view.findViewById(R.id.showimg);
         view.findViewById(R.id.showimg_add).setOnClickListener(this);
         view.findViewById(R.id.showimg_delete).setOnClickListener(this);
 
-        showimg.setImageBitmap(waterMarkBitmap);
     }
 
     private Bitmap createWaterMarkBitmap(Bitmap bitmap) {
@@ -113,11 +116,11 @@ public class ShowImgDialog implements View.OnClickListener {
         if (!fileFolder.exists()) // 如果目录不存在，则创建一个名为"finger"的目录
             fileFolder.mkdirs();
 
-        File jpgFile = new File(fileFolder, filename);
+        jpgFile = new File(fileFolder, filename);
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(jpgFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 80, fos);
+            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
 
             handler.sendEmptyMessage(0x001);
         } catch (Exception e) {
@@ -136,8 +139,10 @@ public class ShowImgDialog implements View.OnClickListener {
     Handler handler = new Handler(new Handler.Callback() {
         @Override
         public boolean handleMessage(Message msg) {
-            if (msg.what == 0x001)
+            if (msg.what == 0x001){
                 Toast.makeText(context, "保存成功", Toast.LENGTH_SHORT).show();
+                showimg.setImageBitmap(BitmapFactory.decodeFile(jpgFile.getAbsolutePath()));
+            }
             if (msg.what == 0x002)
                 Toast.makeText(context, "保存失败", Toast.LENGTH_SHORT).show();
             return false;

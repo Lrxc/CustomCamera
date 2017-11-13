@@ -1,16 +1,14 @@
 package com.bxlt.customcamera;
 
-import android.app.Activity;
 import android.content.Context;
-import android.graphics.PixelFormat;
 import android.hardware.Camera;
-import android.os.Build;
 import android.util.AttributeSet;
-import android.view.Surface;
+import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * 自定义View相机
@@ -19,15 +17,14 @@ import java.io.IOException;
 
 public class CameraPreviewView extends SurfaceView {
     private Camera camera;
-    private static SurfaceHolder holder;
+    private SurfaceHolder holder;
     private int cameraPosition = 1; //当前选用的摄像头，1后置 0前置
-    private Camera.Parameters parameters;//对焦
 
     // Preview类的构造方法
     public CameraPreviewView(Context context, AttributeSet attrs) {
         super(context, attrs);
         // 获得SurfaceHolder对象
-        SurfaceHolder holder = getHolder();
+        holder = getHolder();
         holder.addCallback(new SurfaceCallback());// 指定用于捕捉拍照事件的SurfaceHolder.Callback对象
         holder.setKeepScreenOn(true);// 屏幕常亮
         holder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS); // 设置SurfaceHolder对象的类型
@@ -36,18 +33,15 @@ public class CameraPreviewView extends SurfaceView {
     private class SurfaceCallback implements SurfaceHolder.Callback {
         @Override
         public void surfaceCreated(SurfaceHolder holder) {
-            CameraPreviewView.holder = holder;
             //打开预览
             reStartCamera(0);
+
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            setCameraParams(camera, dm.widthPixels, dm.heightPixels);
         }
 
         @Override
         public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            Camera.Parameters parameters = camera.getParameters();// 获取各项参数
-            parameters.setPictureFormat(PixelFormat.JPEG); // 设置图片格式
-            parameters.setPreviewSize(width, height); // 设置预览大小
-            parameters.setPictureSize(width, height); // 设置保存的图片尺寸
-            parameters.setJpegQuality(100); // 设置照片质量
         }
 
         @Override
@@ -59,28 +53,71 @@ public class CameraPreviewView extends SurfaceView {
         }
     }
 
-    // 自动对焦
-    public void autoFocus() {
-        parameters = camera.getParameters();
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
+    private void setCameraParams(Camera camera, int width, int height) {
+        Camera.Parameters parameters = camera.getParameters();
+        // 获取摄像头支持的PictureSize列表
+        List<Camera.Size> pictureSizeList = parameters.getSupportedPictureSizes();
+        /**从列表中选取合适的分辨率*/
+//        Camera.Size picSize = getProperSize(pictureSizeList, ((float) width) / height);
+        Camera.Size picSize = getProperSize(pictureSizeList, 1.77f);
+        if (null == picSize) {
+            picSize = parameters.getPictureSize();
+        }
+        // 根据选出的PictureSize重新设置SurfaceView大小
+        parameters.setPictureSize(picSize.width, picSize.height);
+
+        // 获取摄像头支持的PreviewSize列表
+        List<Camera.Size> previewSizeList = parameters.getSupportedPreviewSizes();
+//        Camera.Size preSize = getProperSize(previewSizeList, ((float) width) / height);
+        Camera.Size preSize = getProperSize(previewSizeList, 1.77f);
+        if (null != preSize) {
+            parameters.setPreviewSize(preSize.width, preSize.height);
+        }
+
+        parameters.setJpegQuality(100); // 设置照片质量
+        if (parameters.getSupportedFocusModes().contains(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
+            parameters.setFocusMode(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);// 连续对焦模式
+        }
+
+        parameters.set("orientation", "portrait");
+        camera.cancelAutoFocus();//自动对焦。
         camera.setParameters(parameters);
-        camera.autoFocus(new Camera.AutoFocusCallback() {
-            @Override
-            public void onAutoFocus(boolean success, Camera camera) {
-                if (success) {
-                    camera.cancelAutoFocus();// 只有加上了这一句，才会自动对焦。
-                    if (!Build.MODEL.equals("KORIDY H30")) {
-                        parameters = camera.getParameters();
-                        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);// 1连续对焦
-                        camera.setParameters(parameters);
-                    } else {
-                        parameters = camera.getParameters();
-                        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_AUTO);
-                        camera.setParameters(parameters);
-                    }
+    }
+
+    /**
+     * 从列表中选取合适的分辨率
+     * 默认w:h = 4:3
+     * <p>注意：这里的w对应屏幕的height
+     * h对应屏幕的width<p/>
+     */
+    private Camera.Size getProperSize(List<Camera.Size> pictureSizeList, float screenRatio) {
+        Camera.Size result = null;
+        for (Camera.Size size : pictureSizeList) {
+            float currentRatio = ((float) size.width) / size.height;
+            if (Math.abs(currentRatio - screenRatio) <= 0.03) {
+                result = size;
+                break;
+            }
+//            if (currentRatio - screenRatio == 0) {
+//                result = size;
+//                break;
+//            }
+        }
+        if (null == result) {
+            for (Camera.Size size : pictureSizeList) {
+                float curRatio = ((float) size.width) / size.height;
+                if (curRatio == 4f / 3) {// 默认w:h = 4:3
+                    result = size;
+                    break;
                 }
             }
-        });
+        }
+        return result;
+    }
+
+    // 自动对焦
+    public void autoFocus() {
+        camera.autoFocus(null);//自动对焦 不需要回调
     }
 
     private CameraCall listener;
@@ -137,7 +174,7 @@ public class CameraPreviewView extends SurfaceView {
         try {
             camera = Camera.open(i);//打开当前选中的摄像头
             camera.setPreviewDisplay(holder);//通过surfaceview显示取景画面
-//            camera.setDisplayOrientation(getPreviewDegree(activity));// 屏幕方向
+//            camera.setDisplayOrientation(90);// 屏幕方向
             camera.startPreview();//开始预览
         } catch (IOException e) {
             e.printStackTrace();
@@ -168,28 +205,5 @@ public class CameraPreviewView extends SurfaceView {
                 }
             }
         }
-    }
-
-    //根据手机方向获得相机预览画面旋转的角度
-    private int getPreviewDegree(Activity activity) {
-        // 获得手机的方向
-        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-        int degree = 0;
-        // 根据手机的方向计算相机预览画面应该选择的角度
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                degree = 90;
-                break;
-            case Surface.ROTATION_90:
-                degree = 0;
-                break;
-            case Surface.ROTATION_180:
-                degree = 270;
-                break;
-            case Surface.ROTATION_270:
-                degree = 180;
-                break;
-        }
-        return degree;
     }
 }
