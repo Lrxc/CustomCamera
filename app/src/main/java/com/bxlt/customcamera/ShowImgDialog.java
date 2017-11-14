@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.os.Environment;
 import android.os.Handler;
@@ -39,10 +40,9 @@ public class ShowImgDialog implements View.OnClickListener {
     public ShowImgDialog(Context context, byte[] data, CameraPreviewView camePreview) {
         this.context = context;
         this.camePreview = camePreview;
+
         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
         waterMarkBitmap = createWaterMarkBitmap(bitmap);
-
-        saveToSDCard(waterMarkBitmap); // 保存图片到sd卡中
         initView();
     }
 
@@ -63,6 +63,11 @@ public class ShowImgDialog implements View.OnClickListener {
         view.findViewById(R.id.showimg_add).setOnClickListener(this);
         view.findViewById(R.id.showimg_delete).setOnClickListener(this);
 
+        //bitmap旋转90度
+        Matrix matrix = new Matrix();
+        matrix.setRotate(90);
+        waterMarkBitmap = Bitmap.createBitmap(waterMarkBitmap, 0, 0, waterMarkBitmap.getWidth(), waterMarkBitmap.getHeight(), matrix, true);
+        showimg.setImageBitmap(waterMarkBitmap);
     }
 
     private Bitmap createWaterMarkBitmap(Bitmap bitmap) {
@@ -141,10 +146,10 @@ public class ShowImgDialog implements View.OnClickListener {
             if (msg.what == 0x001){
                 Toast.makeText(context, "保存成功", Toast.LENGTH_SHORT).show();
 
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inSampleSize = 2;
-                options.inJustDecodeBounds = false;
-                showimg.setImageBitmap(BitmapFactory.decodeFile(jpgFile.getAbsolutePath(),options));
+//                BitmapFactory.Options options = new BitmapFactory.Options();
+//                options.inSampleSize = 2;
+//                options.inJustDecodeBounds = false;
+//                showimg.setImageBitmap(BitmapFactory.decodeFile(jpgFile.getAbsolutePath(),options));
             }
             if (msg.what == 0x002)
                 Toast.makeText(context, "保存失败", Toast.LENGTH_SHORT).show();

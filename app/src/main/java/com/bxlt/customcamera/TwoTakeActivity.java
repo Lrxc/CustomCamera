@@ -4,6 +4,8 @@ import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -15,9 +17,10 @@ import android.widget.ImageView;
 
 public class TwoTakeActivity extends AppCompatActivity implements View.OnClickListener, CameraCall {
     private CameraPreviewView camePreview;
-    private int mSgType = 1;//1 不开启闪光灯 2自动 3长亮
+    private int mSgType = 2;//1 不开启闪光灯 2自动 3长亮
     private ImageView mIvFlash;// 闪光灯按钮
     private EditText edtCommInfo;//备注信息
+    private ScaleGestureDetector gestureDetector;//缩放手势
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -37,6 +40,9 @@ public class TwoTakeActivity extends AppCompatActivity implements View.OnClickLi
         findViewById(R.id.camera_front).setOnClickListener(this);
         findViewById(R.id.imageView1).setOnClickListener(this);
         findViewById(R.id.img_focus).setOnClickListener(this);
+
+        //缩放手势
+        gestureDetector = new ScaleGestureDetector(this, new ScaleGestureListener());
     }
 
     @Override
@@ -91,5 +97,39 @@ public class TwoTakeActivity extends AppCompatActivity implements View.OnClickLi
         String s = edtCommInfo.getText().toString();
         //拍照完成，弹窗并保存
         new ShowImgDialog(this, data, camePreview);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //识别手势
+        gestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
+    }
+
+    class ScaleGestureListener implements ScaleGestureDetector.OnScaleGestureListener {
+        float mScaleFactor;
+
+        @Override
+        public boolean onScale(ScaleGestureDetector detector) {
+            if (detector.getCurrentSpan() > mScaleFactor) {
+                camePreview.zoomOut();
+            } else {
+                camePreview.zoomIn();
+            }
+            mScaleFactor = detector.getCurrentSpan();
+            return false;
+        }
+
+        @Override
+        public boolean onScaleBegin(ScaleGestureDetector detector) {
+            mScaleFactor = detector.getCurrentSpan();
+            //一定要返回true才会进入onScale()这个函数
+            return true;
+        }
+
+        @Override
+        public void onScaleEnd(ScaleGestureDetector detector) {
+            mScaleFactor = detector.getCurrentSpan();
+        }
     }
 }

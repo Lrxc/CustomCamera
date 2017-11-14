@@ -79,7 +79,8 @@ public class CameraPreviewView extends SurfaceView {
         if (parameters.getSupportedFocusModes().contains(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
             parameters.setFocusMode(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);// 连续对焦模式
         }
-
+        //闪光灯自动模式
+        parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
         parameters.set("orientation", "portrait");
         camera.cancelAutoFocus();//自动对焦。
         camera.setParameters(parameters);
@@ -97,7 +98,6 @@ public class CameraPreviewView extends SurfaceView {
             float currentRatio = ((float) size.width) / size.height;
             if (Math.abs(currentRatio - screenRatio) <= 0.03) {
                 result = size;
-                Log.i("lrxc", "getProperSize: " + result.width + "--" + result.height);
                 break;
             }
 //            if (currentRatio - screenRatio == 0) {
@@ -155,6 +155,28 @@ public class CameraPreviewView extends SurfaceView {
     public void start() {
         if (camera != null) {
             camera.startPreview();
+        }
+    }
+
+    public void zoomOut() {
+        Camera.Parameters parameters = camera.getParameters();
+        if (!parameters.isZoomSupported()) return;
+
+        int zoom = parameters.getZoom() + 1;
+        if (zoom < parameters.getMaxZoom()) {
+            parameters.setZoom(zoom);
+            camera.setParameters(parameters);
+        }
+    }
+
+    public void zoomIn() {
+        Camera.Parameters parameters = camera.getParameters();
+        if (!parameters.isZoomSupported()) return;
+
+        int zoom = parameters.getZoom() - 1;
+        if (zoom >= 0) {
+            parameters.setZoom(zoom);
+            camera.setParameters(parameters);
         }
     }
 
