@@ -43,7 +43,6 @@ public class ShowImgDialog implements View.OnClickListener {
         waterMarkBitmap = createWaterMarkBitmap(bitmap);
 
         saveToSDCard(waterMarkBitmap); // 保存图片到sd卡中
-
         initView();
     }
 
@@ -141,7 +140,11 @@ public class ShowImgDialog implements View.OnClickListener {
         public boolean handleMessage(Message msg) {
             if (msg.what == 0x001){
                 Toast.makeText(context, "保存成功", Toast.LENGTH_SHORT).show();
-                showimg.setImageBitmap(BitmapFactory.decodeFile(jpgFile.getAbsolutePath()));
+
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inSampleSize = 2;
+                options.inJustDecodeBounds = false;
+                showimg.setImageBitmap(BitmapFactory.decodeFile(jpgFile.getAbsolutePath(),options));
             }
             if (msg.what == 0x002)
                 Toast.makeText(context, "保存失败", Toast.LENGTH_SHORT).show();

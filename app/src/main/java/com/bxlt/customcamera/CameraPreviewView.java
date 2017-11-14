@@ -4,6 +4,7 @@ import android.content.Context;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -96,6 +97,7 @@ public class CameraPreviewView extends SurfaceView {
             float currentRatio = ((float) size.width) / size.height;
             if (Math.abs(currentRatio - screenRatio) <= 0.03) {
                 result = size;
+                Log.i("lrxc", "getProperSize: " + result.width + "--" + result.height);
                 break;
             }
 //            if (currentRatio - screenRatio == 0) {
