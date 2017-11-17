@@ -1,4 +1,4 @@
-package com.bxlt.customcamera;
+package com.bxlt.customcamera.activity;
 
 import android.hardware.Camera;
 import android.os.Bundle;
@@ -9,6 +9,11 @@ import android.view.ScaleGestureDetector;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import com.bxlt.customcamera.camera.CameraCall;
+import com.bxlt.customcamera.camera.CameraPreviewView;
+import com.bxlt.customcamera.R;
+import com.bxlt.customcamera.camera.ShowImgDialog;
 
 /**
  * 拍照界面

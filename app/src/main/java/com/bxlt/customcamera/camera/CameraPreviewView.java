@@ -1,10 +1,9 @@
-package com.bxlt.customcamera;
+package com.bxlt.customcamera.camera;
 
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
-import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -36,9 +35,6 @@ public class CameraPreviewView extends SurfaceView {
         public void surfaceCreated(SurfaceHolder holder) {
             //打开预览
             reStartCamera(0);
-
-            DisplayMetrics dm = getResources().getDisplayMetrics();
-            setCameraParams(camera, dm.widthPixels, dm.heightPixels);
         }
 
         @Override
@@ -54,7 +50,9 @@ public class CameraPreviewView extends SurfaceView {
         }
     }
 
-    private void setCameraParams(Camera camera, int width, int height) {
+    private void setCameraParams(Camera camera) {
+        DisplayMetrics dm = getResources().getDisplayMetrics();
+
         Camera.Parameters parameters = camera.getParameters();
         // 获取摄像头支持的PictureSize列表
         List<Camera.Size> pictureSizeList = parameters.getSupportedPictureSizes();
@@ -82,7 +80,7 @@ public class CameraPreviewView extends SurfaceView {
         //闪光灯自动模式
         parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
         parameters.set("orientation", "portrait");
-        camera.cancelAutoFocus();//自动对焦。
+        camera.cancelAutoFocus();//自动对焦
         camera.setParameters(parameters);
     }
 
@@ -158,6 +156,7 @@ public class CameraPreviewView extends SurfaceView {
         }
     }
 
+    //放大
     public void zoomOut() {
         Camera.Parameters parameters = camera.getParameters();
         if (!parameters.isZoomSupported()) return;
@@ -169,6 +168,7 @@ public class CameraPreviewView extends SurfaceView {
         }
     }
 
+    //缩小
     public void zoomIn() {
         Camera.Parameters parameters = camera.getParameters();
         if (!parameters.isZoomSupported()) return;
@@ -200,6 +200,8 @@ public class CameraPreviewView extends SurfaceView {
             camera.setPreviewDisplay(holder);//通过surfaceview显示取景画面
 //            camera.setDisplayOrientation(90);// 屏幕方向
             camera.startPreview();//开始预览
+
+            setCameraParams(camera);
         } catch (IOException e) {
             e.printStackTrace();
         }

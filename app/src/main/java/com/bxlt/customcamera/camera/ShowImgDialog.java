@@ -1,4 +1,4 @@
-package com.bxlt.customcamera;
+package com.bxlt.customcamera.camera;
 
 import android.app.Dialog;
 import android.content.Context;
@@ -15,6 +15,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
 import android.widget.Toast;
+
+import com.bxlt.customcamera.R;
 
 import java.io.File;
 import java.io.FileOutputStream;

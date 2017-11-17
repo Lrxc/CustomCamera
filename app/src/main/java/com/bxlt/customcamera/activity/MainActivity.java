@@ -1,4 +1,4 @@
-package com.bxlt.customcamera;
+package com.bxlt.customcamera.activity;
 
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -11,6 +11,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.bxlt.customcamera.R;
 
 import java.io.File;
 import java.io.FileInputStream;

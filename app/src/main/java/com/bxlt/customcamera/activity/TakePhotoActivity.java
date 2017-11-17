@@ -1,17 +1,18 @@
-package com.bxlt.customcamera;
+package com.bxlt.customcamera.activity;
 
 import android.app.Activity;
-import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.Surface;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.View;
+
+import com.bxlt.customcamera.R;
+import com.bxlt.customcamera.camera.ShowImgDialog;
 
 import java.io.IOException;
 

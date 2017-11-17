@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.bxlt.customcamera.CameraPreviewView
+    <com.bxlt.customcamera.camera.CameraPreviewView
         android:id="@+id/camePreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
