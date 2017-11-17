@@ -21,13 +21,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-
         <activity android:name=".activity.TakePhotoActivity" />
-        <activity
-            android:name=".activity.TwoTakeActivity"
-            android:configChanges="orientation|keyboardHidden|navigation|screenSize"
-            android:screenOrientation="landscape"
-            android:windowSoftInputMode="adjustUnspecified|stateHidden" />
+        <activity android:name=".activity.SigninShowActivity" />
     </application>
 
 </manifest>

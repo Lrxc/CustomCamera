@@ -18,7 +18,7 @@ import java.util.List;
 public class CameraPreviewView extends SurfaceView {
     private Camera camera;
     private SurfaceHolder holder;
-    private int cameraPosition = 1; //当前选用的摄像头，1后置 0前置
+    public int cameraPosition = 1; //当前选用的摄像头，1后置 0前置
 
     // Preview类的构造方法
     public CameraPreviewView(Context context, AttributeSet attrs) {

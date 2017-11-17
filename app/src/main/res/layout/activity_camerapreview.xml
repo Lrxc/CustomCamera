@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical">
@@ -53,25 +54,12 @@
 
     </RelativeLayout>
 
-    <ImageView
-        android:layout_width="42dp"
-        android:layout_height="42dp"
-        android:layout_centerInParent="true"
-        android:src="@drawable/icon_frame_none" />
-
-    <ImageView
-        android:id="@+id/img_focus"
-        android:layout_width="72dp"
-        android:layout_height="72dp"
-        android:layout_centerInParent="true"
-        android:src="@drawable/focus" />
-
     <RelativeLayout
         android:id="@+id/camera_take"
         android:layout_width="80dip"
         android:layout_height="80dip"
-        android:layout_alignParentRight="true"
-        android:layout_centerVertical="true"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
         android:layout_margin="16dip"
         android:layout_marginRight="5dip"
         android:background="@color/colorPrimary"
@@ -86,34 +74,4 @@
             android:layout_margin="25dip"
             android:src="@drawable/gl_ic_return_camera" />
     </RelativeLayout>
-
-    <!--备注-->
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
-        android:background="@drawable/ic_bg_photo_back">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:layout_marginLeft="8dp"
-            android:gravity="center"
-            android:text="备注："
-            android:textColor="@color/colorPrimary"
-            android:textSize="16sp" />
-
-        <EditText
-            android:id="@+id/edtCommInfo"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@null"
-            android:gravity="center_vertical"
-            android:maxLength="20"
-            android:textColor="@color/colorPrimary"
-            android:textSize="16sp" />
-    </LinearLayout>
 </RelativeLayout>

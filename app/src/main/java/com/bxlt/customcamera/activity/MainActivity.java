@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
 
     //自定义相机
     public void gotoCamera3(View view) {
-        startActivity(new Intent(MainActivity.this, TwoTakeActivity.class));
+        startActivity(new Intent(MainActivity.this, TakePhotoActivity.class));
     }
 
     @Override

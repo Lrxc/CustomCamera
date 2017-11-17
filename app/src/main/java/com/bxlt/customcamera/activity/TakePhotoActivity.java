@@ -1,120 +1,132 @@
 package com.bxlt.customcamera.activity;
 
-import android.app.Activity;
-import android.graphics.PixelFormat;
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.view.Surface;
-import android.view.SurfaceHolder;
-import android.view.SurfaceView;
+import android.view.MotionEvent;
+import android.view.ScaleGestureDetector;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.bxlt.customcamera.R;
-import com.bxlt.customcamera.camera.ShowImgDialog;
+import com.bxlt.customcamera.camera.CameraCall;
+import com.bxlt.customcamera.camera.CameraPreviewView;
+import com.bxlt.customcamera.utils.FileUtils;
+import com.bxlt.customcamera.utils.ScaleGestureListener;
 
-import java.io.IOException;
+import java.io.File;
 
 /**
- * Activity 直接集成拍照
- * Created by Lrxc on 2017/6/8.
+ * 拍照界面
+ * Created by Lrxc on 2017/11/13.
  */
 
-public class TakePhotoActivity extends AppCompatActivity implements View.OnClickListener {
-    private SurfaceView surfaceView;
-    private Camera camera;
+public class TakePhotoActivity extends AppCompatActivity implements View.OnClickListener, CameraCall {
+    private String TAG = "lrxc";
+    private CameraPreviewView camePreview;
+    private int mSgType = 2;//1 不开启闪光灯 2自动 3长亮
+    private ImageView mIvFlash;// 闪光灯按钮
+    private ScaleGestureDetector gestureDetector;//缩放手势
+
+    private ProgressDialog dialog;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_takephoto);
+        setContentView(R.layout.activity_camerapreview);
+
         initView();
     }
 
     private void initView() {
-        surfaceView = (SurfaceView) findViewById(R.id.surfaceView);
-        findViewById(R.id.takePhoto).setOnClickListener(this);
+        camePreview = (CameraPreviewView) findViewById(R.id.camePreview);
+        mIvFlash = (ImageView) findViewById(R.id.img_left_flash);
+        camePreview.setOnCameraListener(this);
+        //点击对焦
+//        camePreview.setOnClickListener(this);
+        mIvFlash.setOnClickListener(this);
+        findViewById(R.id.camera_take).setOnClickListener(this);
+        findViewById(R.id.camera_front).setOnClickListener(this);
+        findViewById(R.id.imageView1).setOnClickListener(this);
 
-        surfaceView.getHolder().setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-        surfaceView.getHolder().setFixedSize(176, 144); //设置Surface分辨率
-        surfaceView.getHolder().setKeepScreenOn(true);// 屏幕常亮
-        surfaceView.getHolder().addCallback(new SurfaceCallback());//为SurfaceView的句柄添加一个回调函数
+        //缩放手势
+        gestureDetector = new ScaleGestureDetector(this, new ScaleGestureListener(camePreview));
     }
 
     @Override
     public void onClick(View v) {
         switch (v.getId()) {
-            case R.id.takePhoto:
-                if (camera != null) {
-                    camera.takePicture(null, null, new MyPictureCallback());
-                }
+            case R.id.camera_take:
+                dialog = ProgressDialog.show(this, "", "拍照中", true, true);
+                camePreview.takePicture(); //拍照
+                break;
+            case R.id.camera_front:
+                //切换摄像头
+                camePreview.switchFrontCamera();
+                break;
+            case R.id.img_left_flash:
+                //闪光灯模式
+                switchFlashMode();
+                break;
+            case R.id.camePreview:
+                //手动对焦
+                camePreview.autoFocus();
+                break;
+            case R.id.imageView1:
+                finish();
                 break;
         }
     }
 
-    private class MyPictureCallback implements Camera.PictureCallback {
-        @Override
-        public void onPictureTaken(byte[] data, Camera camera) {
-            camera.stopPreview(); // 拍完照后，重新开始预览
-
-            new ShowImgDialog(TakePhotoActivity.this, data, null);
+    //切换闪关灯模式
+    private void switchFlashMode() {
+        switch (mSgType) {
+            case 1:
+                mIvFlash.setImageResource(R.drawable.ic_camera_top_bar_flash_auto_normal);
+                camePreview.setIsOpenFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
+                mSgType = 2;
+                break;
+            case 2:
+                mIvFlash.setImageResource(R.drawable.ic_camera_top_bar_flash_torch_normal);
+                camePreview.setIsOpenFlashMode(Camera.Parameters.FLASH_MODE_ON);
+                mSgType = 3;
+                break;
+            case 3:
+                mIvFlash.setImageResource(R.drawable.ic_camera_top_bar_flash_off_normal);
+                camePreview.setIsOpenFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+                mSgType = 1;
+                break;
         }
     }
 
-    private class SurfaceCallback implements SurfaceHolder.Callback {
-        @Override
-        public void surfaceCreated(SurfaceHolder holder) {
-            try {
-                // 打开摄像头
-                camera = Camera.open();
-                camera.setPreviewDisplay(holder); // 设置用于显示拍照影像的SurfaceHolder对象
-                camera.setDisplayOrientation(getPreviewDegree(TakePhotoActivity.this));
-                camera.startPreview(); // 开始预览
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
 
-        @Override
-        public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
-            Camera.Parameters parameters = camera.getParameters();// 获取各项参数
-            parameters.setPictureFormat(PixelFormat.JPEG); // 设置图片格式
-            parameters.setPreviewSize(width, height); // 设置预览大小
-            parameters.setPreviewFrameRate(5);  //设置每秒显示4帧
-            parameters.setPictureSize(width, height); // 设置保存的图片尺寸
-            parameters.setJpegQuality(100); // 设置照片质量
-        }
+    @Override
+    public void onCameraData(byte[] data) {
+        //保存到本地
+        File file = new FileUtils().saveToSDCard(data);
+        dialog.dismiss();
 
-        @Override
-        public void surfaceDestroyed(SurfaceHolder holder) {
-            if (camera != null) {
-                camera.release(); // 释放照相机
-                camera = null;
-            }
-        }
+        //跳转到预览界面
+        Intent intent = new Intent(this, SigninShowActivity.class);
+        intent.putExtra("jpgFile", file.getAbsolutePath());//图片保存路径
+        intent.putExtra("cameraPosition", camePreview.cameraPosition);//当前前后摄像头
+        startActivityForResult(intent, 1);
     }
 
-    // 提供一个静态方法，用于根据手机方向获得相机预览画面旋转的角度
-    public static int getPreviewDegree(Activity activity) {
-        // 获得手机的方向
-        int rotation = activity.getWindowManager().getDefaultDisplay().getRotation();
-        int degree = 0;
-        // 根据手机的方向计算相机预览画面应该选择的角度
-        switch (rotation) {
-            case Surface.ROTATION_0:
-                degree = 90;
-                break;
-            case Surface.ROTATION_90:
-                degree = 0;
-                break;
-            case Surface.ROTATION_180:
-                degree = 270;
-                break;
-            case Surface.ROTATION_270:
-                degree = 180;
-                break;
-        }
-        return degree;
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1 && resultCode == RESULT_OK)
+            finish();//签到成功后关闭拍照页面
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        //手势缩放识别手势
+        gestureDetector.onTouchEvent(event);
+        return super.onTouchEvent(event);
     }
 }
