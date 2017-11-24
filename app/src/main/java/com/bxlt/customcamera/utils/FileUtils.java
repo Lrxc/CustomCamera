@@ -3,6 +3,7 @@ package com.bxlt.customcamera.utils;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Environment;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,14 +24,15 @@ public class FileUtils {
         if (!fileFolder.exists()) // 如果目录不存在，则创建一个名为"finger"的目录
             fileFolder.mkdirs();
 
-        File jpgFile = new File(fileFolder, "signin_temp.jpg");
+        File jpgFile = new File(fileFolder, "signin_temp.JPEG");
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(jpgFile);
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fos);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 100, fos);
 
         } catch (Exception e) {
             e.printStackTrace();
+            Log.i("lrxc", "saveToSDCard: " + e.getMessage());
         } finally {
             try {
                 fos.close(); // 关闭输出流

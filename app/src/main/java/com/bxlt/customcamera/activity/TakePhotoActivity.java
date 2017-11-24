@@ -3,9 +3,11 @@ package com.bxlt.customcamera.activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.hardware.Camera;
+import android.media.ExifInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
 import android.view.View;
@@ -15,9 +17,11 @@ import com.bxlt.customcamera.R;
 import com.bxlt.customcamera.camera.CameraCall;
 import com.bxlt.customcamera.camera.CameraPreviewView;
 import com.bxlt.customcamera.utils.FileUtils;
+import com.bxlt.customcamera.utils.GPSUtils;
 import com.bxlt.customcamera.utils.ScaleGestureListener;
 
 import java.io.File;
+import java.io.IOException;
 
 /**
  * 拍照界面
@@ -108,6 +112,20 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
         //保存到本地
         File file = new FileUtils().saveToSDCard(data);
         dialog.dismiss();
+
+        try {
+            //保存照片的经纬度信息
+            ExifInterface exif = new ExifInterface(file.getAbsolutePath());
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, GPSUtils.gpsInfoConvert(116.2353515625));
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, GPSUtils.gpsInfoConvert(39.5379397452));
+            exif.saveAttributes();
+
+            String latValue = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+            String lngValue = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+            Log.i(TAG, "onCameraData: " + GPSUtils.convertToDegree(latValue) + "" + GPSUtils.convertToDegree(lngValue));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
         //跳转到预览界面
         Intent intent = new Intent(this, SigninShowActivity.class);

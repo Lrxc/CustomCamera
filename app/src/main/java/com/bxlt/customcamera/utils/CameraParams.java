@@ -1,5 +1,6 @@
 package com.bxlt.customcamera.utils;
 
+import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.util.Log;
 
@@ -52,6 +53,7 @@ public class CameraParams {
         if (parameters.getSupportedFocusModes().contains(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
             parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);
         }
+        parameters.setPictureFormat(PixelFormat.JPEG); // 设置图片格式
         parameters.setJpegQuality(100); // 设置照片质量
         parameters.set("orientation", "portrait");
         camera.setDisplayOrientation(90);// 设置PreviewDisplay的方向，效果就是将捕获的画面旋转多少度显示
