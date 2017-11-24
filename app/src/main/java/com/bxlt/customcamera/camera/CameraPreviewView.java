@@ -7,8 +7,9 @@ import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.bxlt.customcamera.utils.CameraParams;
+
 import java.io.IOException;
-import java.util.List;
 
 /**
  * 自定义View相机
@@ -50,70 +51,6 @@ public class CameraPreviewView extends SurfaceView {
         }
     }
 
-    private void setCameraParams(Camera camera) {
-        DisplayMetrics dm = getResources().getDisplayMetrics();
-
-        Camera.Parameters parameters = camera.getParameters();
-        // 获取摄像头支持的PictureSize列表
-        List<Camera.Size> pictureSizeList = parameters.getSupportedPictureSizes();
-        /**从列表中选取合适的分辨率*/
-//        Camera.Size picSize = getProperSize(pictureSizeList, ((float) width) / height);
-        Camera.Size picSize = getProperSize(pictureSizeList, 1.77f);
-        if (null == picSize) {
-            picSize = parameters.getPictureSize();
-        }
-        // 根据选出的PictureSize重新设置SurfaceView大小
-        parameters.setPictureSize(picSize.width, picSize.height);
-
-        // 获取摄像头支持的PreviewSize列表
-        List<Camera.Size> previewSizeList = parameters.getSupportedPreviewSizes();
-//        Camera.Size preSize = getProperSize(previewSizeList, ((float) width) / height);
-        Camera.Size preSize = getProperSize(previewSizeList, 1.77f);
-        if (null != preSize) {
-            parameters.setPreviewSize(preSize.width, preSize.height);
-        }
-
-        parameters.setJpegQuality(100); // 设置照片质量
-        if (parameters.getSupportedFocusModes().contains(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE)) {
-            parameters.setFocusMode(android.hardware.Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);// 连续对焦模式
-        }
-        //闪光灯自动模式
-        parameters.setFlashMode(Camera.Parameters.FLASH_MODE_AUTO);
-        parameters.set("orientation", "portrait");
-        camera.cancelAutoFocus();//自动对焦
-        camera.setParameters(parameters);
-    }
-
-    /**
-     * 从列表中选取合适的分辨率
-     * 默认w:h = 4:3
-     * <p>注意：这里的w对应屏幕的height
-     * h对应屏幕的width<p/>
-     */
-    private Camera.Size getProperSize(List<Camera.Size> pictureSizeList, float screenRatio) {
-        Camera.Size result = null;
-        for (Camera.Size size : pictureSizeList) {
-            float currentRatio = ((float) size.width) / size.height;
-            if (Math.abs(currentRatio - screenRatio) <= 0.03) {
-                result = size;
-                break;
-            }
-//            if (currentRatio - screenRatio == 0) {
-//                result = size;
-//                break;
-//            }
-        }
-        if (null == result) {
-            for (Camera.Size size : pictureSizeList) {
-                float curRatio = ((float) size.width) / size.height;
-                if (curRatio == 4f / 3) {// 默认w:h = 4:3
-                    result = size;
-                    break;
-                }
-            }
-        }
-        return result;
-    }
 
     // 自动对焦
     public void autoFocus() {
@@ -201,7 +138,9 @@ public class CameraPreviewView extends SurfaceView {
 //            camera.setDisplayOrientation(90);// 屏幕方向
             camera.startPreview();//开始预览
 
-            setCameraParams(camera);
+            //设置相机参数
+            DisplayMetrics dm = getResources().getDisplayMetrics();
+            CameraParams.getInstance().setCameraParams(camera, dm.widthPixels, dm.heightPixels);
         } catch (IOException e) {
             e.printStackTrace();
         }

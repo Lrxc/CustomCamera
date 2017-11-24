@@ -18,7 +18,7 @@ public class FileUtils {
     // 保存图片到sd卡中
     public File saveToSDCard(byte[] data) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-        File fileFolder = new File(Environment.getExternalStorageDirectory() + "/DCIM/finger/");
+        File fileFolder = new File(Environment.getExternalStorageDirectory() + "/Pictures/");
 
         if (!fileFolder.exists()) // 如果目录不存在，则创建一个名为"finger"的目录
             fileFolder.mkdirs();
