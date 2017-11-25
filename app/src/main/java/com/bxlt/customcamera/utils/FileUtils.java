@@ -24,7 +24,7 @@ public class FileUtils {
         if (!fileFolder.exists()) // 如果目录不存在，则创建一个名为"finger"的目录
             fileFolder.mkdirs();
 
-        File jpgFile = new File(fileFolder, "signin_temp.JPEG");
+        File jpgFile = new File(fileFolder, "signin_temp.jpeg");
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(jpgFile);

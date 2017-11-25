@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/CustomCamera.iml" filepath="$PROJECT_DIR$/CustomCamera.iml" />
+      <module fileurl="file://D:\AndroidStudioProjects\CustomCamera\CustomCamera.iml" filepath="D:\AndroidStudioProjects\CustomCamera\CustomCamera.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://D:\AndroidStudioProjects\CustomCamera\app\app.iml" filepath="D:\AndroidStudioProjects\CustomCamera\app\app.iml" />
     </modules>
   </component>
 </project>

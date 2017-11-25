@@ -12,9 +12,9 @@ import java.util.List;
  */
 
 public class CameraParams {
-    private final String TAG = "lrxc";
+    private final String TAG = "params";
     private static CameraParams cameraParams;
-    private int minSize = 640;//最小尺寸
+    private final int minSize = 640;//最小尺寸
 
     private CameraParams() {
     }

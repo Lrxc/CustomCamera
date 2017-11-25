@@ -17,7 +17,7 @@ import com.bxlt.customcamera.R;
 import com.bxlt.customcamera.camera.CameraCall;
 import com.bxlt.customcamera.camera.CameraPreviewView;
 import com.bxlt.customcamera.utils.FileUtils;
-import com.bxlt.customcamera.utils.GPSUtils;
+import com.bxlt.customcamera.utils.ConvertUtils;
 import com.bxlt.customcamera.utils.ScaleGestureListener;
 
 import java.io.File;
@@ -116,13 +116,12 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
         try {
             //保存照片的经纬度信息
             ExifInterface exif = new ExifInterface(file.getAbsolutePath());
-            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, GPSUtils.gpsInfoConvert(116.2353515625));
-            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, GPSUtils.gpsInfoConvert(39.5379397452));
+            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, ConvertUtils.convertToDegree(116.2353515625));
+            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, ConvertUtils.convertToDegree(39.5379397452));
             exif.saveAttributes();
-
             String latValue = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
             String lngValue = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-            Log.i(TAG, "onCameraData: " + GPSUtils.convertToDegree(latValue) + "" + GPSUtils.convertToDegree(lngValue));
+            Log.i(TAG, "onCameraData: " + ConvertUtils.convertToCoordinate(latValue) + "--" + ConvertUtils.convertToCoordinate(lngValue));
         } catch (IOException e) {
             e.printStackTrace();
         }
