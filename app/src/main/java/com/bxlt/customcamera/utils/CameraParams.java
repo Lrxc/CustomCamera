@@ -4,6 +4,8 @@ import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.util.Log;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -67,7 +69,18 @@ public class CameraParams {
      * h对应屏幕的width<p/>
      */
     private Camera.Size getProperSize(List<Camera.Size> pictureSizeList, float screenRatio) {
+        //顺序排序
+//        Collections.sort(pictureSizeList, new Comparator<Camera.Size>() {
+//            @Override
+//            public int compare(Camera.Size lhs, Camera.Size rhs) {
+//                return ((Integer) lhs.width).compareTo(rhs.width);
+//            }
+//        });
+
         Log.i(TAG, "screenRatio=" + screenRatio);
+        for (Camera.Size s : pictureSizeList) {
+            Log.i(TAG, "getProperSize: " + s.width + "  " + s.height+"  "+((float) s.width) / s.height);
+        }
         Camera.Size result = null;
         for (Camera.Size size : pictureSizeList) {
             float currentRatio = ((float) size.width) / size.height;

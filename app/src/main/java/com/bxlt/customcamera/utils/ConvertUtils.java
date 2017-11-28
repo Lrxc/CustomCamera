@@ -15,7 +15,18 @@ public class ConvertUtils {
 //        double second = ((gpsInfo - limit) * 60 - (int) minute) * 60;
 
         String dms = Location.convert(gpsInfo, Location.FORMAT_SECONDS);
-        return dms;
+        String[] splits = dms.split(":");
+        String[] secnds = (splits[2]).split("\\.");
+        String seconds;
+        //截取小数部分
+        if (secnds.length == 0) {
+            seconds = splits[2];
+        } else {
+            seconds = secnds[0];
+        }
+        //必须这种格式,不能有小数 否则Android6.0写入照片属性失败
+        String s = splits[0] + "/1," + splits[1] + "/1," + seconds + "/1";
+        return s;
     }
 
     //度分秒转经纬度

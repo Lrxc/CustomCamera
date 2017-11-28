@@ -25,6 +25,8 @@ public class FileUtils {
             fileFolder.mkdirs();
 
         File jpgFile = new File(fileFolder, "signin_temp.jpeg");
+        if(jpgFile.exists())jpgFile.delete();
+
         FileOutputStream fos = null;
         try {
             fos = new FileOutputStream(jpgFile);
