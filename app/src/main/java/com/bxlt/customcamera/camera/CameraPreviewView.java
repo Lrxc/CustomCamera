@@ -18,7 +18,7 @@ import java.io.IOException;
 public class CameraPreviewView extends SurfaceView {
     private Camera camera;
     private SurfaceHolder holder;
-    public int cameraPosition = 1; //当前选用的摄像头，1后置 0前置
+    private int cameraPosition = 1; //当前选用的摄像头，0后置 1前置
 
     // Preview类的构造方法
     public CameraPreviewView(Context context, AttributeSet attrs) {
@@ -134,11 +134,10 @@ public class CameraPreviewView extends SurfaceView {
         try {
             camera = Camera.open(i);//打开当前选中的摄像头
             camera.setPreviewDisplay(holder);//通过surfaceview显示取景画面
-//            camera.setDisplayOrientation(90);// 屏幕方向
             camera.startPreview();//开始预览
 
             //设置相机参数
-            CameraParams.getInstance().setCameraParams(getContext(), camera);
+            CameraParams.getInstance().setCameraParams(getContext(), camera, i);
         } catch (IOException e) {
             e.printStackTrace();
         }

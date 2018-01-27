@@ -1,11 +1,13 @@
 package com.bxlt.customcamera.utils;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.Surface;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -22,6 +24,7 @@ public class CameraParams {
 
     private final int minSize = 640;//最小尺寸
     private final double screenRatio = 1.33;//长宽比
+    public int oritation;//旋转角度
 
     private CameraParams() {
     }
@@ -37,13 +40,17 @@ public class CameraParams {
         return cameraParams;
     }
 
-    //设置相机参数
-    public void setCameraParams(Context context, Camera camera) {
+    /**
+     * @param context
+     * @param camera
+     * @param cameraId 前置 后置摄像头
+     */
+
+    public void setCameraParams(Context context, Camera camera, int cameraId) {
         DisplayMetrics dm = context.getResources().getDisplayMetrics();
         int width = dm.widthPixels;
         int height = dm.heightPixels;
         float i = ((float) width) / height;
-        Log.i(TAG, "setCameraParams  width=" + width + "  height=" + height+i);
 
         Camera.Parameters parameters = camera.getParameters();
         // 获取摄像头支持的PictureSize列表
@@ -69,8 +76,41 @@ public class CameraParams {
         parameters.setPictureFormat(PixelFormat.JPEG); // 设置图片格式
         parameters.setJpegQuality(100); // 设置照片质量
         parameters.set("orientation", "portrait");
-        camera.setDisplayOrientation(90);// 设置PreviewDisplay的方向，效果就是将捕获的画面旋转多少度显示
+        setOrientation(context, camera, cameraId);
         camera.setParameters(parameters);
+    }
+
+    //保证预览方向正确
+    private void setOrientation(Context context, Camera camera, int cameraId) {
+        Camera.CameraInfo info = new Camera.CameraInfo();
+        Camera.getCameraInfo(cameraId, info);
+        int rotation = ((Activity) context).getWindowManager().getDefaultDisplay().getRotation();
+
+        int degrees = 0;
+        switch (rotation) {
+            case Surface.ROTATION_0:
+                degrees = 0;
+                break;
+            case Surface.ROTATION_90:
+                degrees = 90;
+                break;
+            case Surface.ROTATION_180:
+                degrees = 180;
+                break;
+            case Surface.ROTATION_270:
+                degrees = 270;
+                break;
+        }
+        int result;
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360;
+            result = (360 - result) % 360;  // compensate the mirror
+        } else {  // back-facing
+            result = (info.orientation - degrees + 360) % 360;
+        }
+        oritation = result;
+//        Log.i("ddms", "setOrientation: " + oritation);
+        camera.setDisplayOrientation(result);
     }
 
     //从列表中选取合适的分辨率
@@ -81,7 +121,8 @@ public class CameraParams {
         for (Size size : pictureSizeList) {
             float currentRatio = ((float) size.width) / size.height;
             //大于最小尺寸且比例相等
-            if (size.width > minSize && currentRatio - screenRatio <= 0.03) {
+//            if (size.width > minSize && currentRatio - screenRatio <= 0.03) {
+            if (size.width > minSize) {
                 return size;
             }
         }

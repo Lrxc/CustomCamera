@@ -7,7 +7,6 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.os.Environment;
 import android.util.Log;
@@ -33,9 +32,9 @@ public class FileUtils {
     }
 
     // 保存图片到sd卡中
-    public File saveToSDCard(byte[] data, Rect rect, Point p, int cameraPosition) {
+    public File saveToSDCard(byte[] data, Rect rect) {
         Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-        Bitmap waterMarkBitmap = createWaterMarkBitmap(bitmap, rect, p, cameraPosition);
+        Bitmap waterMarkBitmap = createWaterMarkBitmap(bitmap, rect);
         File fileFolder = new File(Environment.getExternalStorageDirectory() + "/Pictures/");
 
         if (!fileFolder.exists()) // 如果目录不存在，则创建一个名为"finger"的目录
@@ -63,17 +62,14 @@ public class FileUtils {
     }
 
     //添加水印
-    private Bitmap createWaterMarkBitmap(Bitmap bitmap, Rect rect, Point p, int cameraPosition) {
+    private Bitmap createWaterMarkBitmap(Bitmap bitmap, Rect rect) {
         //设置bitmap旋转90度
         Matrix matrix = new Matrix();
-        //后置摄像头旋转角度
-        if (cameraPosition == 1)
-            matrix.setRotate(90);
-        else matrix.setRotate(-90);
+        matrix.setRotate(CameraParams.getInstance().oritation);
         bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
         if (rect != null) {
             //遮罩
-            bitmap = ImageUtil.getRectBmp(rect, bitmap, p);
+            bitmap = ImageUtil.getRectBmp(rect, bitmap);
         }
 
         //画笔
@@ -88,7 +84,7 @@ public class FileUtils {
         canvas.drawText("username", 20, 100, paint);
 
         Bitmap logoBitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
-        canvas.drawBitmap(logoBitmap, bitmap.getWidth()-logoBitmap.getWidth()-20, 0, null);
+        canvas.drawBitmap(logoBitmap, bitmap.getWidth() - logoBitmap.getWidth() - 20, 0, null);
 
         return bitmap;
     }

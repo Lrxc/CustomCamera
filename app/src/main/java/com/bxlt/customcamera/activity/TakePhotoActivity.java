@@ -2,6 +2,7 @@ package com.bxlt.customcamera.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
@@ -42,7 +43,6 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
     // 遮罩页面
     private OverlayerView shadeView;
     private Rect shadeRect;
-    private Point displayPx;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -68,9 +68,19 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
         gestureDetector = new ScaleGestureDetector(this, new ScaleGestureListener(camePreview));
 
         //遮罩
-        shadeRect = DisplayUtil.createCenterScreenRect(this, new Rect(0, 100, 0, 100));
+        Point displayPx = DisplayUtil.getScreenMetrics(this);
+        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
+            //竖屏
+            int measureHigth = displayPx.x * 3 / 4;
+            int i = (displayPx.y - measureHigth) / 2;
+            shadeRect = new Rect(0, i, displayPx.x, i + measureHigth);
+        } else {
+            //横屏
+            int measureWidth = displayPx.y * 4 / 3;
+            int i = (displayPx.x - measureWidth) / 2;
+            shadeRect = new Rect(i, 0, i + measureWidth, displayPx.y);
+        }
         shadeView.setmCenterRect(shadeRect);
-        displayPx = DisplayUtil.getScreenMetrics(this);
     }
 
     @Override
@@ -122,7 +132,7 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
     @Override
     public void onCameraData(byte[] data) {
         //保存到本地
-        File file = new FileUtils(this).saveToSDCard(data, shadeRect, displayPx, camePreview.cameraPosition);
+        File file = new FileUtils(this).saveToSDCard(data, shadeRect);
         dialog.dismiss();
 
         try {
