@@ -21,7 +21,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.TakePhotoActivity" />
+        <activity
+            android:name=".activity.TakePhotoActivity"
+            android:theme="@style/Fullscreen" />
         <activity android:name=".activity.SigninShowActivity" />
     </application>
 

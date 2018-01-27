@@ -1,7 +1,10 @@
 package com.bxlt.customcamera.utils;
 
+import android.content.Context;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
+import android.hardware.Camera.Size;
+import android.util.DisplayMetrics;
 import android.util.Log;
 
 import java.util.Collections;
@@ -15,8 +18,10 @@ import java.util.List;
 
 public class CameraParams {
     private final String TAG = "params";
-    private static CameraParams cameraParams;
+    private volatile static CameraParams cameraParams;
+
     private final int minSize = 640;//最小尺寸
+    private final double screenRatio = 1.33;//长宽比
 
     private CameraParams() {
     }
@@ -33,22 +38,28 @@ public class CameraParams {
     }
 
     //设置相机参数
-    public void setCameraParams(Camera camera, int width, int height) {
-        Log.i(TAG, "setCameraParams  width=" + width + "  height=" + height);
+    public void setCameraParams(Context context, Camera camera) {
+        DisplayMetrics dm = context.getResources().getDisplayMetrics();
+        int width = dm.widthPixels;
+        int height = dm.heightPixels;
+        float i = ((float) width) / height;
+        Log.i(TAG, "setCameraParams  width=" + width + "  height=" + height+i);
+
         Camera.Parameters parameters = camera.getParameters();
         // 获取摄像头支持的PictureSize列表
-        List<Camera.Size> pictureSizeList = parameters.getSupportedPictureSizes();
+        List<Size> pictureSizeList = parameters.getSupportedPictureSizes();
         //从列表中选取合适的分辨率
-        Camera.Size picSize = getProperSize(pictureSizeList, ((float) height / width));
+        Size picSize = getProperSize(pictureSizeList);
         if (null != picSize) {
-            Log.i(TAG, "picSize.width=" + picSize.width + "  picSize.height=" + picSize.height);
+            Log.i(TAG, "picSize.width==================" + picSize.width + "  picSize.height=" + picSize.height);
             parameters.setPictureSize(picSize.width, picSize.height);
         }
+
         // 获取摄像头支持的PreviewSize列表
-        List<Camera.Size> previewSizeList = parameters.getSupportedPreviewSizes();
-        Camera.Size preSize = getProperSize(previewSizeList, ((float) height) / width);
+        List<Size> previewSizeList = parameters.getSupportedPreviewSizes();
+        Size preSize = getProperSize(previewSizeList);
         if (null != preSize) {
-            Log.i(TAG, "preSize.width=" + preSize.width + "  preSize.height=" + preSize.height);
+            Log.i(TAG, "preSize.width==================" + preSize.width + "  preSize.height=" + preSize.height);
             parameters.setPreviewSize(preSize.width, preSize.height);
         }
         // 连续对焦模式
@@ -62,34 +73,25 @@ public class CameraParams {
         camera.setParameters(parameters);
     }
 
-    /**
-     * 从列表中选取合适的分辨率
-     * 默认w:h = 4:3
-     * <p>注意：这里的w对应屏幕的height
-     * h对应屏幕的width<p/>
-     */
-    private Camera.Size getProperSize(List<Camera.Size> pictureSizeList, float screenRatio) {
-        //顺序排序
-//        Collections.sort(pictureSizeList, new Comparator<Camera.Size>() {
-//            @Override
-//            public int compare(Camera.Size lhs, Camera.Size rhs) {
-//                return ((Integer) lhs.width).compareTo(rhs.width);
-//            }
-//        });
+    //从列表中选取合适的分辨率
+    private Size getProperSize(List<Size> pictureSizeList) {
+        //降序排序
+        Collections.sort(pictureSizeList, new CameraSizeComparator());
 
-        Log.i(TAG, "screenRatio=" + screenRatio);
-        for (Camera.Size s : pictureSizeList) {
-            Log.i(TAG, "getProperSize: " + s.width + "  " + s.height+"  "+((float) s.width) / s.height);
-        }
-        Camera.Size result = null;
-        for (Camera.Size size : pictureSizeList) {
+        for (Size size : pictureSizeList) {
             float currentRatio = ((float) size.width) / size.height;
             //大于最小尺寸且比例相等
-            if (size.width > minSize && currentRatio == screenRatio) {
-                result = size;
-                break;
+            if (size.width > minSize && currentRatio - screenRatio <= 0.03) {
+                return size;
             }
         }
-        return result;
+        return null;
+    }
+
+    private class CameraSizeComparator implements Comparator<Size> {
+        //降序排列
+        public int compare(Size lhs, Size rhs) {
+            return ((Integer) rhs.width).compareTo(lhs.width);
+        }
     }
 }

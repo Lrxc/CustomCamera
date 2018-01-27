@@ -3,7 +3,6 @@ package com.bxlt.customcamera.camera;
 import android.content.Context;
 import android.hardware.Camera;
 import android.util.AttributeSet;
-import android.util.DisplayMetrics;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
@@ -139,8 +138,7 @@ public class CameraPreviewView extends SurfaceView {
             camera.startPreview();//开始预览
 
             //设置相机参数
-            DisplayMetrics dm = getResources().getDisplayMetrics();
-            CameraParams.getInstance().setCameraParams(camera, dm.widthPixels, dm.heightPixels);
+            CameraParams.getInstance().setCameraParams(getContext(), camera);
         } catch (IOException e) {
             e.printStackTrace();
         }

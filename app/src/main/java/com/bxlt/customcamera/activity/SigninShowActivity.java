@@ -3,10 +3,6 @@ package com.bxlt.customcamera.activity;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Matrix;
-import android.graphics.Paint;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
@@ -19,9 +15,6 @@ import android.widget.Toast;
 
 import com.bxlt.customcamera.R;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 /**
  * 签到--拍照成功预览页
  * Created by Lrxc on 2017/11/15.
@@ -29,7 +22,6 @@ import java.util.Date;
 
 public class SigninShowActivity extends AppCompatActivity implements View.OnClickListener {
     private String jpgFile;//拍照字节流
-    private int cameraPosition;//当前选用的摄像头
 
     private Bitmap bitmap;
 
@@ -37,9 +29,7 @@ public class SigninShowActivity extends AppCompatActivity implements View.OnClic
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_signinshow);
-
         jpgFile = getIntent().getStringExtra("jpgFile");
-        cameraPosition = getIntent().getIntExtra("cameraPosition", 404);
 
         initToolbar();
         initView();
@@ -80,7 +70,7 @@ public class SigninShowActivity extends AppCompatActivity implements View.OnClic
 
         //转化为bitmap
         bitmap = BitmapFactory.decodeFile(jpgFile);
-        img.setImageBitmap(createWaterMarkBitmap(bitmap));
+        img.setImageBitmap(bitmap);
     }
 
     @Override
@@ -94,30 +84,6 @@ public class SigninShowActivity extends AppCompatActivity implements View.OnClic
                 Toast.makeText(this, "提交成功", Toast.LENGTH_SHORT).show();
                 break;
         }
-    }
-
-    //添加水印
-    private Bitmap createWaterMarkBitmap(Bitmap bitmap) {
-        //设置bitmap旋转90度
-        Matrix matrix = new Matrix();
-        //后置摄像头旋转角度
-        if (cameraPosition == 1)
-            matrix.setRotate(90);
-        else matrix.setRotate(-90);
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
-
-        //画笔
-        Paint paint = new Paint();
-        paint.setColor(Color.RED);
-        paint.setTextSize(30);
-
-        //画布
-        Canvas canvas = new Canvas(bitmap);
-        String format = DateFormat.getDateTimeInstance().format(new Date());
-        canvas.drawText(format, 20, 50, paint);
-        canvas.drawText("username", 20, 100, paint);
-
-        return bitmap;
     }
 
     @Override

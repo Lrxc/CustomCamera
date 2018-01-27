@@ -5,10 +5,20 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <com.bxlt.customcamera.camera.CameraPreviewView
-        android:id="@+id/camePreview"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent">
+
+        <com.bxlt.customcamera.camera.CameraPreviewView
+            android:id="@+id/camePreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <com.bxlt.customcamera.camera.OverlayerView
+            android:id="@+id/shadeView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
 
     <RelativeLayout
         android:layout_width="match_parent"
