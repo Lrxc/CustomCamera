@@ -5,7 +5,6 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Surface;
 
@@ -21,7 +20,6 @@ import java.util.List;
 public class CameraParams {
     private final String TAG = "params";
     private volatile static CameraParams cameraParams;
-
     private final int minSize = 640;//最小尺寸
     private final double screenRatio = 1.33;//长宽比
     public int oritation;//旋转角度
@@ -47,11 +45,6 @@ public class CameraParams {
      */
 
     public void setCameraParams(Context context, Camera camera, int cameraId) {
-        DisplayMetrics dm = context.getResources().getDisplayMetrics();
-        int width = dm.widthPixels;
-        int height = dm.heightPixels;
-        float i = ((float) width) / height;
-
         Camera.Parameters parameters = camera.getParameters();
         // 获取摄像头支持的PictureSize列表
         List<Size> pictureSizeList = parameters.getSupportedPictureSizes();
@@ -109,7 +102,6 @@ public class CameraParams {
             result = (info.orientation - degrees + 360) % 360;
         }
         oritation = result;
-//        Log.i("ddms", "setOrientation: " + oritation);
         camera.setDisplayOrientation(result);
     }
 
@@ -121,8 +113,7 @@ public class CameraParams {
         for (Size size : pictureSizeList) {
             float currentRatio = ((float) size.width) / size.height;
             //大于最小尺寸且比例相等
-//            if (size.width > minSize && currentRatio - screenRatio <= 0.03) {
-            if (size.width > minSize) {
+            if (size.width > minSize && Math.abs(currentRatio - screenRatio) <= 0.03) {
                 return size;
             }
         }

@@ -22,7 +22,6 @@ import com.bxlt.customcamera.R;
 
 public class SigninShowActivity extends AppCompatActivity implements View.OnClickListener {
     private String jpgFile;//拍照字节流
-
     private Bitmap bitmap;
 
     @Override

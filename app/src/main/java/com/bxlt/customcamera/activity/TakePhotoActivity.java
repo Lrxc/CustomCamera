@@ -2,8 +2,6 @@ package com.bxlt.customcamera.activity;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
-import android.content.res.Configuration;
-import android.graphics.Point;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.media.ExifInterface;
@@ -16,24 +14,24 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.bxlt.customcamera.R;
-import com.bxlt.customcamera.camera.CameraCall;
+import com.bxlt.customcamera.callback.ICameraCall;
 import com.bxlt.customcamera.camera.CameraPreviewView;
 import com.bxlt.customcamera.camera.OverlayerView;
 import com.bxlt.customcamera.utils.ConvertUtils;
-import com.bxlt.customcamera.utils.DisplayUtil;
 import com.bxlt.customcamera.utils.FileUtils;
 import com.bxlt.customcamera.utils.ScaleGestureListener;
+import com.bxlt.customcamera.utils.ShadeLayer;
 
 import java.io.File;
 import java.io.IOException;
 
 /**
- * 拍照界面
  * Created by Lrxc on 2017/11/13.
+ * <p>
+ * 拍照界面
  */
 
-public class TakePhotoActivity extends AppCompatActivity implements View.OnClickListener, CameraCall {
-    private String TAG = "lrxc";
+public class TakePhotoActivity extends AppCompatActivity implements View.OnClickListener, ICameraCall {
     private CameraPreviewView camePreview;
     private int mSgType = 2;//1 不开启闪光灯 2自动 3长亮
     private ImageView mIvFlash;// 闪光灯按钮
@@ -60,27 +58,15 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
         //点击对焦
 //        camePreview.setOnClickListener(this);
         mIvFlash.setOnClickListener(this);
+
         findViewById(R.id.camera_take).setOnClickListener(this);
         findViewById(R.id.camera_front).setOnClickListener(this);
         findViewById(R.id.imageView1).setOnClickListener(this);
 
         //缩放手势
         gestureDetector = new ScaleGestureDetector(this, new ScaleGestureListener(camePreview));
-
         //遮罩
-        Point displayPx = DisplayUtil.getScreenMetrics(this);
-        if (getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT) {
-            //竖屏
-            int measureHigth = displayPx.x * 3 / 4;
-            int i = (displayPx.y - measureHigth) / 2;
-            shadeRect = new Rect(0, i, displayPx.x, i + measureHigth);
-        } else {
-            //横屏
-            int measureWidth = displayPx.y * 4 / 3;
-            int i = (displayPx.x - measureWidth) / 2;
-            shadeRect = new Rect(i, 0, i + measureWidth, displayPx.y);
-        }
-        shadeView.setmCenterRect(shadeRect);
+        shadeRect = new ShadeLayer(this).measurePadding(shadeView);
     }
 
     @Override
@@ -136,7 +122,7 @@ public class TakePhotoActivity extends AppCompatActivity implements View.OnClick
         dialog.dismiss();
 
         try {
-            //保存照片的经纬度信息
+            //写入照片的经纬度信息
             ExifInterface exif = new ExifInterface(file.getAbsolutePath());
             exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, ConvertUtils.convertToDegree(39.5379397452));
             exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, ConvertUtils.convertToDegree(116.2353515625));

@@ -6,6 +6,7 @@ import android.util.AttributeSet;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 
+import com.bxlt.customcamera.callback.ICameraCall;
 import com.bxlt.customcamera.utils.CameraParams;
 
 import java.io.IOException;
@@ -18,7 +19,7 @@ import java.io.IOException;
 public class CameraPreviewView extends SurfaceView {
     private Camera camera;
     private SurfaceHolder holder;
-    private int cameraPosition = 1; //当前选用的摄像头，0后置 1前置
+    private int cameraPosition = 0; //当前选用的摄像头，0后置 1前置
 
     // Preview类的构造方法
     public CameraPreviewView(Context context, AttributeSet attrs) {
@@ -56,10 +57,10 @@ public class CameraPreviewView extends SurfaceView {
         camera.autoFocus(null);//自动对焦 不需要回调
     }
 
-    private CameraCall listener;
+    private ICameraCall listener;
 
     // 相机拍照事件
-    public void setOnCameraListener(CameraCall listener) {
+    public void setOnCameraListener(ICameraCall listener) {
         this.listener = listener;
     }
 
@@ -97,7 +98,7 @@ public class CameraPreviewView extends SurfaceView {
         Camera.Parameters parameters = camera.getParameters();
         if (!parameters.isZoomSupported()) return;
 
-        int zoom = parameters.getZoom() + 1;
+        int zoom = parameters.getZoom() + 5;
         if (zoom < parameters.getMaxZoom()) {
             parameters.setZoom(zoom);
             camera.setParameters(parameters);
@@ -109,7 +110,7 @@ public class CameraPreviewView extends SurfaceView {
         Camera.Parameters parameters = camera.getParameters();
         if (!parameters.isZoomSupported()) return;
 
-        int zoom = parameters.getZoom() - 1;
+        int zoom = parameters.getZoom() - 5;
         if (zoom >= 0) {
             parameters.setZoom(zoom);
             camera.setParameters(parameters);
@@ -150,19 +151,19 @@ public class CameraPreviewView extends SurfaceView {
 
         for (int i = 0; i < cameraCount; i++) {
             Camera.getCameraInfo(i, cameraInfo);//得到每一个摄像头的信息
-            if (cameraPosition == 1) {
+            if (cameraPosition == 0) {
                 //现在是后置，变更为前置
                 if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {//代表摄像头的方位，CAMERA_FACING_FRONT前置      CAMERA_FACING_BACK后置
                     //重新打开
                     reStartCamera(i);
-                    cameraPosition = 0;
+                    cameraPosition = i;
                     break;
                 }
             } else {
                 //现在是前置， 变更为后置
                 if (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_BACK) {//代表摄像头的方位，CAMERA_FACING_FRONT前置      CAMERA_FACING_BACK后置
                     reStartCamera(i);
-                    cameraPosition = 1;
+                    cameraPosition = i;
                     break;
                 }
             }
