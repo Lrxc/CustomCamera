@@ -64,44 +64,61 @@ public class FileUtils {
     }
 
     //添加水印
-    private Bitmap createWaterMarkBitmap(Bitmap bitmap, Rect rect) {
+    private Bitmap createWaterMarkBitmap(Bitmap src, Rect rect) {
         //设置bitmap旋转
         Matrix matrix = new Matrix();
         matrix.setRotate(CameraParams.getInstance().oritation);
-        bitmap = Bitmap.createBitmap(bitmap, 0, 0, bitmap.getWidth(), bitmap.getHeight(), matrix, true);
+        src = Bitmap.createBitmap(src, 0, 0, src.getWidth(), src.getHeight(), matrix, true);
 
-        //宽高为矩形的宽高
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
         if (rect != null) {
             //获取遮罩内的图片
-            bitmap = getRectBmp(bitmap, rect);
-            width = rect.right - rect.left;
-            height = rect.bottom - rect.top;
+            src = getRectBmp(src, rect);
         }
+        int srcWidth = src.getWidth();
+        int srcHeight = src.getHeight();
+        int size = 30;
+        int showWidth = rect.right - rect.left;
+        //上下白边的高度和
+        final int paddingSun = 200;
+        int showHeight = rect.bottom - rect.top + paddingSun;
+
         //创建透明贴图--保证水印的大小
-        Bitmap chartletBitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
-        chartletBitmap.eraseColor(Color.TRANSPARENT);//设置透明
+        Bitmap chartletBitmap = Bitmap.createBitmap(showWidth, showHeight, Bitmap.Config.ARGB_8888);
+//        chartletBitmap.eraseColor(0x22000000);//设置透明度
         Canvas canvas = new Canvas(chartletBitmap);
+        //贴图阴影
+        Paint backPaint = new Paint();
+        backPaint.setAlpha(50);
+        Rect rect1 = new Rect(5, 5, showWidth - 5, showHeight - 5);
+        canvas.drawBitmap(src, null, rect1, backPaint);
+
+        //计算加上上线白边的真实高度
+        int measureHeight = (int) ((float) srcHeight / (showHeight - paddingSun) * showHeight);
+        //上下白边的高度
+        int padTop = Math.abs(measureHeight - src.getHeight());
+        //底图
+        Bitmap nb = Bitmap.createBitmap(srcWidth, measureHeight, Bitmap.Config.ARGB_8888);
+        Canvas cvnb = new Canvas(nb);
+        cvnb.drawColor(Color.WHITE);
+        cvnb.drawBitmap(src, 10, padTop / 2, null);
 
         //画笔
         Paint paint = new Paint();
         paint.setColor(Color.RED);
-        paint.setTextSize(50);
+        paint.setTextSize(size);
+        paint.setTextAlign(Paint.Align.CENTER);
 
         String format = DateFormat.getDateTimeInstance().format(new Date());
-        canvas.drawText(format, 20, 50, paint);
-        canvas.drawText("username", 20, 100, paint);
+        canvas.drawText(format, showWidth / 2, paddingSun / 4 + size / 2, paint);
+        canvas.drawText("username", 20, showHeight - paddingSun / 4, paint);
 
         Bitmap logoBitmap = BitmapFactory.decodeResource(context.getResources(), R.mipmap.ic_launcher);
-        canvas.drawBitmap(logoBitmap, chartletBitmap.getWidth() - logoBitmap.getWidth() - 20, 0, null);
-        //贴图进行缩放
-        Bitmap scaleBitmap = scaleBitmap(chartletBitmap, bitmap.getWidth(), bitmap.getHeight());
+        canvas.drawBitmap(logoBitmap, showWidth - logoBitmap.getWidth() - 10, paddingSun / 2 + 10, null);
 
-        //原图作为底图
-        Canvas canvasBase = new Canvas(bitmap);
-        canvasBase.drawBitmap(scaleBitmap, 0, 0, null);
-        return bitmap;
+        //贴图进行缩放
+        Bitmap scaleBitmap = scaleBitmap(chartletBitmap, srcWidth, measureHeight);
+        cvnb.drawBitmap(scaleBitmap, 0, 0, null);
+        return nb;
     }
 
     /**
@@ -119,9 +136,13 @@ public class FileUtils {
         Bitmap rectbitmap = null;
         //横竖屏--按比例割取图片
         if (CameraParams.getInstance().oritation == 90) {
-            rectbitmap = Bitmap.createBitmap(bm, 0, bm.getHeight() * rect.top / dm.heightPixels, bm.getWidth(), bm.getHeight() * hight / dm.heightPixels);
+            int dpWidth = bm.getWidth();
+            int dpHeight = bm.getHeight() * hight / dm.heightPixels;
+            rectbitmap = Bitmap.createBitmap(bm, 0, bm.getHeight() * rect.top / dm.heightPixels, dpWidth, dpHeight);
         } else if (CameraParams.getInstance().oritation == 0) {
-            rectbitmap = Bitmap.createBitmap(bm, bm.getWidth() * rect.left / dm.heightPixels, 0, bm.getWidth() * width / dm.heightPixels, bm.getHeight());
+            int dpWidth = bm.getWidth() * width / dm.widthPixels;
+            int dpHeight = bm.getHeight();
+            rectbitmap = Bitmap.createBitmap(bm, bm.getWidth() * rect.left / dm.widthPixels, 0, dpWidth, dpHeight);
         }
         if (!bm.isRecycled()) {
             bm.recycle();
