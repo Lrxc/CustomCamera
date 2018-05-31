@@ -6,7 +6,9 @@ import android.graphics.PixelFormat;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
 import android.util.Log;
+import android.view.Display;
 import android.view.Surface;
+import android.view.WindowManager;
 
 import java.util.Collections;
 import java.util.Comparator;
@@ -15,13 +17,15 @@ import java.util.List;
 /**
  * 设置相机参数
  * Created by Lrxc on 2017/11/24.
+ * <p>
+ * 宽高比、Previewsize、Picturesize 比率必须一致，否则图片预览或生成会变形
  */
 
 public class CameraParams {
     private final String TAG = "params";
     private volatile static CameraParams cameraParams;
     private final int minSize = 640;//最小尺寸
-    private final double screenRatio = 1.33;//长宽比
+    private double screenRatio;//长宽比
     public int oritation;//旋转角度
 
     private CameraParams() {
@@ -39,12 +43,34 @@ public class CameraParams {
     }
 
     /**
+     * 获取预览和照片比率
+     *
+     * @param context
+     */
+    private void GetCameraPhotoRatio(Context context) {
+        // 获取屏幕信息
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        Display display = wm.getDefaultDisplay();
+
+        int mPreviewWidth = display.getWidth();
+        int mPreviewHeight = display.getHeight();
+
+        if (mPreviewWidth < mPreviewHeight) {
+            screenRatio = (float) mPreviewHeight / mPreviewWidth;
+        } else {
+            screenRatio = (float) mPreviewWidth / mPreviewHeight;
+        }
+    }
+
+    /**
      * @param context
      * @param camera
      * @param cameraId 前置 后置摄像头
      */
 
     public void setCameraParams(Context context, Camera camera, int cameraId) {
+        GetCameraPhotoRatio(context);
+
         Camera.Parameters parameters = camera.getParameters();
         // 获取摄像头支持的PictureSize列表
         List<Size> pictureSizeList = parameters.getSupportedPictureSizes();
